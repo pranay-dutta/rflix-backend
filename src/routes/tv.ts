@@ -35,6 +35,22 @@ router.get("/:series_id/similar", async (req, res) => {
   }
 });
 
+//Return tv series video trailers
+router.get("/videos/:series_id", async (req, res) => {
+  try {
+    const { series_id } = req.params;
+    const queryParams = { ...req.query };
+
+    const apiClient = new ApiClient(`/tv/${series_id}/videos`);
+    const response = await apiClient.getAll({ params: queryParams });
+
+    res.status(200).send(response);
+  } catch (error) {
+    console.log("Error at /videos/series_id", error);
+    res.status(500).json({ error: "Failed to get videos." });
+  }
+});
+
 //Return list of tv shows based on tag
 const allowedTags = ["popular", "top_rated", "airing_today", "on_the_air"];
 router.get("/tag/:tag", async (req, res) => {
