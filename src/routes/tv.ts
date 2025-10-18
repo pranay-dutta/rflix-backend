@@ -3,6 +3,7 @@ import { TvSeriesDetails } from "@/interfaces/TvSeriesDetails";
 import ApiClient from "../services/api-client";
 import Season from "@/interfaces/Season";
 import { Router } from "express";
+import { Credit } from "@/interfaces/Credit";
 
 const router = Router();
 
@@ -87,6 +88,19 @@ router.get("/:series_id/season/:season_number", async (req, res) => {
   } catch (err) {
     console.log(`Error at /tv/series/season}`, err);
     res.status(500).json({ error: "Failed to get tv list." });
+  }
+});
+
+//Return tv series credits
+router.get("/credits/:series_id", async (req, res) => {
+  const { series_id } = req.params;
+  try {
+    const apiClient = new ApiClient<Credit>(`/tv/${series_id}/credits`);
+    const response = await apiClient.get();
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(`Error at /tv/series/credits`, err);
+    res.status(500).json({ error: "Failed to get tv credits." });
   }
 });
 export default router;

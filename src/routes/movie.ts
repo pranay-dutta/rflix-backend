@@ -3,6 +3,7 @@ import ApiClient from "../services/api-client";
 import { MovieDetails } from "@/interfaces/MovieDetails";
 import { Images } from "@/interfaces/Images";
 import Movie from "@/interfaces/Movie";
+import { Credit } from "@/interfaces/Credit";
 
 const router = Router();
 
@@ -93,4 +94,16 @@ router.get("/videos/:movie_id", async (req, res) => {
   }
 });
 
+//Return movie credits
+router.get("/credits/:movie_id", async (req, res) => {
+  const { movie_id } = req.params;
+  try {
+    const apiClient = new ApiClient<Credit>(`/movie/${movie_id}/credits`);
+    const response = await apiClient.get();
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(`Error at /movie/credits`, err);
+    res.status(500).json({ error: "Failed to get movie credits." });
+  }
+});
 export default router;
