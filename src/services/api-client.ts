@@ -18,8 +18,8 @@ class ApiClient<T> {
     this.endpoint = endpoint;
   }
 
-  get = async () => {
-    return axiosInstance.get<T>(this.endpoint).then((res) => res.data);
+  get = async (param?: AxiosRequestConfig) => {
+    return axiosInstance.get<T>(this.endpoint, param).then((res) => res.data);
   };
   getAll = async (params?: AxiosRequestConfig) => {
     return axiosInstance
