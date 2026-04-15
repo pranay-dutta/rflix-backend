@@ -15,14 +15,12 @@ router.get("/:id", async (req, res) => {
   const type = req.query.type as string;
 
   const client = new ApiClient<Data>(`/${type}/${id}`);
-  console.time("tmdb_request");
   const response = await client.get({
     params: { append_to_response: "external_ids" },
   });
 
   const imdbId = response.external_ids.imdb_id;
   const videos = await getAllTitleVideos(imdbId, 1, 1);
-  console.log(videos);
 
   res.status(200).json({ streams: videos });
 });
