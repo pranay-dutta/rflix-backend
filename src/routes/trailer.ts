@@ -1,5 +1,5 @@
-import { getAllTitleVideos } from "@/scripts/imdbVideos";
-import ApiClient from "@/services/api-client";
+import { getAllTitleVideos } from "../scripts/imdbVideos";
+import ApiClient from "../services/api-client";
 import { Router } from "express";
 const router = Router();
 
