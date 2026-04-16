@@ -11,7 +11,7 @@ const headers = {
   "x-imdb-client-name": "imdb-web-next-localized",
 };
 
-// 🔹 1. Get one page
+// 1. Get one page
 export const getTitleVideosPage = async (
   titleId: string,
   afterCursor?: string,
@@ -71,7 +71,7 @@ export const getTitleVideosPage = async (
   return res.data;
 };
 
-// 🔹 2. Get playback URLs
+// 2. Get playback URLs
 export const getVideoUrls = async (videoId: string) => {
   const query = {
     query: `query VideoPlaybackData($const: ID!) {
@@ -102,7 +102,7 @@ export const getVideoUrls = async (videoId: string) => {
   }
 };
 
-// 🔹 3. Extract videos
+// 3. Extract videos
 export const extractVideoData = async (data: any) => {
   const edges = data?.data?.title?.videoStrip?.edges || [];
 
@@ -124,33 +124,52 @@ export const extractVideoData = async (data: any) => {
   return videos;
 };
 
-// 🔹 4. Pagination (main function)
+//  4. Pagination (main function)
 export const getAllTitleVideos = async (
   titleId: string,
-  limit = 50,
-  maxPages?: number,
+  limit = 10,
+  typeFilter?: "trailer" | "clip" | "featurette",
 ) => {
-  let allVideos: any[] = [];
+  let results: any[] = [];
   let cursor: string | undefined = undefined;
-  let page = 1;
 
-  while (true) {
-    const data = await getTitleVideosPage(titleId, cursor, limit);
-    const videos = await extractVideoData(data);
+  while (results.length < limit) {
+    const data = await getTitleVideosPage(titleId, cursor, 50); // fetch bigger batch
+    const edges = data?.data?.title?.videoStrip?.edges || [];
 
-    allVideos.push(...videos);
+    for (const edge of edges) {
+      const node = edge.node;
 
-    console.log(`Fetched ${videos.length}, total: ${allVideos.length}`);
+      const type = node.contentType?.displayName?.value?.toLowerCase() || "";
+      const name = node.name?.value?.toLowerCase() || "";
 
-    if (maxPages && page >= maxPages) break;
+      // apply filter BEFORE pushing
+      const isMatch =
+        !typeFilter || type.includes(typeFilter) || name.includes(typeFilter);
+
+      if (!isMatch) continue;
+
+      const urls = await getVideoUrls(node.id);
+
+      results.push({
+        id: node.id,
+        name: node.name?.value,
+        type: node.contentType?.displayName?.value,
+        runtime: node.runtime?.value || 0,
+        thumbnail: node.thumbnail?.url || "",
+        urls,
+      });
+
+      // stop as soon as limit reached
+      if (results.length >= limit) break;
+    }
 
     const nextCursor = data?.data?.title?.videoStrip?.pageInfo?.endCursor;
 
-    if (!nextCursor || videos.length === 0) break;
+    if (!nextCursor || edges.length === 0) break;
 
     cursor = nextCursor;
-    page++;
   }
 
-  return allVideos;
+  return results;
 };

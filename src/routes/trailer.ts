@@ -20,7 +20,7 @@ router.get("/:id", async (req, res) => {
   });
 
   const imdbId = response.external_ids.imdb_id;
-  const videos = await getAllTitleVideos(imdbId, 1, 1);
+  const videos = await getAllTitleVideos(imdbId, 1, "trailer");
 
   res.status(200).json({ streams: videos });
 });
