@@ -8,7 +8,9 @@ router.get("/tv/:id", async (req, res) => {
   try {
     const apiClient = new ApiClient(`/tv/${id}`);
     const response = await apiClient.getAll({
-      params: { append_to_response: "images" },
+      params: {
+        append_to_response: "external_ids,images",
+      },
     });
 
     res.status(200).send(response);
@@ -23,7 +25,7 @@ router.get("/movie/:id", async (req, res) => {
   try {
     const apiClient = new ApiClient(`/movie/${id}`);
     const response = await apiClient.getAll({
-      params: { append_to_response: "images" },
+      params: { append_to_response: "external_ids,images" },
     });
 
     res.status(200).send(response);
