@@ -20,7 +20,7 @@ export const getTitleVideosPage = async (
   const variables: any = {
     const: titleId,
     first: limit,
-    sort: { by: "DATE", order: "DESC" },
+    sort: { by: "DATE", order: "ASC" },
     filter: {
       nameConstraints: {},
       titleConstraints: {},
