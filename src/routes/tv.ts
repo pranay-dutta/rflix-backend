@@ -4,29 +4,43 @@ import ApiClient from "../services/api-client";
 import Season from "@/interfaces/Season";
 import { Router } from "express";
 import { Credit } from "@/interfaces/Credit";
+import { Images } from "@/interfaces/Images";
 
 const router = Router();
 
-//Return details of a tv show
-router.get("/:series_id", async (req, res) => {
+//Return movie name logo images
+router.get("/images/:id", async (req, res) => {
   try {
-    const { series_id } = req.params;
-    const apiClient = new ApiClient<TvSeriesDetails>("/tv/" + series_id);
+    const { id } = req.params;
+    const apiClient = new ApiClient<Images>("/tv/" + id + "/images");
+    const response: Images = await apiClient.get();
+    res.status(200).json(response);
+  } catch (err) {
+    console.error("Error at /tv/:id/images", err);
+    res.status(500).json({ error: "Failed to get logo images." });
+  }
+});
+
+//Return details of a tv show
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const apiClient = new ApiClient<TvSeriesDetails>("/tv/" + id);
 
     const response = await apiClient.get();
     res.status(200).json(response);
   } catch (err) {
-    console.error("Error at /tvshow/id :", err);
+    console.error("Error at /tv/:id :", err);
     res.status(500).json({ error: "Failed to get the tv show." });
   }
 });
 
 //Return similar tv shows
-router.get("/:series_id/similar", async (req, res) => {
+router.get("/:id/similar", async (req, res) => {
   try {
-    const { series_id } = req.params;
+    const { id } = req.params;
 
-    const apiClient = new ApiClient<TvSeries>(`/tv/${series_id}/similar`);
+    const apiClient = new ApiClient<TvSeries>(`/tv/${id}/similar`);
     const response = await apiClient.getAll();
 
     res.status(200).send(response);
@@ -37,17 +51,17 @@ router.get("/:series_id/similar", async (req, res) => {
 });
 
 //Return tv series video trailers
-router.get("/videos/:series_id", async (req, res) => {
+router.get("/videos/:id", async (req, res) => {
   try {
-    const { series_id } = req.params;
+    const { id } = req.params;
     const queryParams = { ...req.query };
 
-    const apiClient = new ApiClient(`/tv/${series_id}/videos`);
+    const apiClient = new ApiClient(`/tv/${id}/videos`);
     const response = await apiClient.getAll({ params: queryParams });
 
     res.status(200).send(response);
   } catch (error) {
-    console.log("Error at /videos/series_id", error);
+    console.log("Error at /videos/:id", error);
     res.status(500).json({ error: "Failed to get videos." });
   }
 });
@@ -59,7 +73,7 @@ router.get("/tag/:tag", async (req, res) => {
   const queryParams = { ...req.query };
 
   if (!allowedTags.includes(tag)) {
-    res.status(400).json({ error: "Invalid movie tag" });
+    res.status(400).json({ error: "Invalid tv show tag" });
     return;
   }
 
@@ -75,31 +89,31 @@ router.get("/tag/:tag", async (req, res) => {
 });
 
 //Return all episode of a season
-router.get("/:series_id/season/:season_number", async (req, res) => {
-  const { series_id, season_number } = req.params;
+router.get("/:id/season/:season_number", async (req, res) => {
+  const { id, season_number } = req.params;
 
   try {
     const apiClient = new ApiClient<Season>(
-      `/tv/${series_id}/season/${season_number}`
+      `/tv/${id}/season/${season_number}`
     );
 
     const response = await apiClient.get();
     res.status(200).json(response);
   } catch (err) {
-    console.log(`Error at /tv/series/season}`, err);
+    console.log(`Error at /tv/${id}/season/${season_number}`, err);
     res.status(500).json({ error: "Failed to get tv list." });
   }
 });
 
 //Return tv series credits
-router.get("/credits/:series_id", async (req, res) => {
-  const { series_id } = req.params;
+router.get("/credits/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    const apiClient = new ApiClient<Credit>(`/tv/${series_id}/credits`);
+    const apiClient = new ApiClient<Credit>(`/tv/${id}/credits`);
     const response = await apiClient.get();
     res.status(200).json(response);
   } catch (err) {
-    console.log(`Error at /tv/series/credits`, err);
+    console.log(`Error at /tv/${id}/credits`, err);
     res.status(500).json({ error: "Failed to get tv credits." });
   }
 });

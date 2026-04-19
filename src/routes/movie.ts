@@ -8,21 +8,21 @@ import { Credit } from "@/interfaces/Credit";
 const router = Router();
 
 // Return specific movie details
-router.get("/:movie_id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const { movie_id } = req.params;
-    const isValidMovieId = /^[0-9]+$/.test(movie_id);
+    const { id } = req.params;
+    const isValidMovieId = /^[0-9]+$/.test(id);
 
     if (!isValidMovieId) {
       res.status(400).json({ error: "Invalid movie ID" });
       return;
     }
 
-    const apiClient = new ApiClient<MovieDetails>("/movie/" + movie_id);
+    const apiClient = new ApiClient<MovieDetails>("/movie/" + id);
     const response: MovieDetails = await apiClient.get();
     res.status(200).json(response);
   } catch (err) {
-    console.error("Error at /movie/movie_id", err);
+    console.error("Error at /movie/:id", err);
     res.status(500).json({ error: "Failed to get the movie details." });
   }
 });
@@ -50,11 +50,13 @@ router.get("/tag/:tag", async (req, res) => {
 });
 
 //Return movie name logo images
-router.get("/images/:movie_id", async (req, res) => {
+router.get("/images/:id", async (req, res) => {
   try {
-    const { movie_id } = req.params;
-    const apiClient = new ApiClient<Images>("/movie/" + movie_id + "/images");
-    const response: Images = await apiClient.get();
+    const { id } = req.params;
+    const query = req.query;
+
+    const apiClient = new ApiClient<Images>("/movie/" + id + "/images");
+    const response: Images = await apiClient.get({ params: query });
     res.status(200).json(response);
   } catch (err) {
     console.error("Error at /movie/:id/images", err);
@@ -63,42 +65,42 @@ router.get("/images/:movie_id", async (req, res) => {
 });
 
 //Return similar Movies
-router.get("/similar/:movie_id", async (req, res) => {
+router.get("/similar/:id", async (req, res) => {
   try {
-    const { movie_id } = req.params;
+    const { id } = req.params;
     const queryParams = { ...req.query };
 
-    const apiClient = new ApiClient(`/movie/${movie_id}/similar`);
+    const apiClient = new ApiClient(`/movie/${id}/similar`);
     const response = await apiClient.getAll({ params: queryParams });
 
     res.status(200).send(response);
   } catch (error) {
-    console.log("Error at /similar/movie_id", error);
+    console.log("Error at /similar/:id", error);
     res.status(500).json({ error: "Failed to get similar movies." });
   }
 });
 
 //Return movie video trailers
-router.get("/videos/:movie_id", async (req, res) => {
+router.get("/videos/:id", async (req, res) => {
   try {
-    const { movie_id } = req.params;
+    const { id } = req.params;
     const queryParams = { ...req.query };
 
-    const apiClient = new ApiClient(`/movie/${movie_id}/videos`);
+    const apiClient = new ApiClient(`/movie/${id}/videos`);
     const response = await apiClient.getAll({ params: queryParams });
 
     res.status(200).send(response);
   } catch (error) {
-    console.log("Error at /videos/movie_id", error);
+    console.log("Error at /videos/:id", error);
     res.status(500).json({ error: "Failed to get videos." });
   }
 });
 
 //Return movie credits
-router.get("/credits/:movie_id", async (req, res) => {
-  const { movie_id } = req.params;
+router.get("/credits/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    const apiClient = new ApiClient<Credit>(`/movie/${movie_id}/credits`);
+    const apiClient = new ApiClient<Credit>(`/movie/${id}/credits`);
     const response = await apiClient.get();
     res.status(200).json(response);
   } catch (err) {
